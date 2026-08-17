@@ -2,7 +2,7 @@ from marine4py.core.nmea import NMEASentence
 
 def test_parse_gga():
     raw = "$GPGGA,184353.07,1929.045,S,02410.506,E,1,04,2.6,100.00,M,-33.9,M,,0000*6D"
-    msg = NMEASentence.parse(raw, dialect="gps")
+    msg = NMEASentence.parse(raw, dialect="nmea")
     assert msg.sentence_id == "GGA"
     assert msg.talker == "GP"
     assert msg.lat == "1929.045"
@@ -16,16 +16,16 @@ def test_parse_gga():
 
 def test_gga_roundtrip():
     raw = "$GPGGA,184353.07,1929.045,S,02410.506,E,1,04,2.6,100.00,M,-33.9,M,,0000*6D"
-    msg = NMEASentence.parse(raw, dialect="gps")
+    msg = NMEASentence.parse(raw, dialect="nmea")
     regenerated = str(msg).strip()
-    reparsed = NMEASentence.parse(regenerated, dialect="gps")
+    reparsed = NMEASentence.parse(regenerated, dialect="nmea")
     assert reparsed.lat == msg.lat
     assert reparsed.altitude == msg.altitude
 
 
 def test_parse_rmc():
     raw = "$GPRMC,225446,A,4916.45,N,12311.12,W,000.5,054.7,191194,020.3,E*68"
-    msg = NMEASentence.parse(raw, dialect="gps")
+    msg = NMEASentence.parse(raw, dialect="nmea")
     assert msg.sentence_id == "RMC"
     assert msg.status == "A"
     assert msg.spd_over_grnd == 0.5
@@ -37,7 +37,7 @@ def test_parse_rmc():
 
 def test_parse_vtg():
     raw = "$GPVTG,054.7,T,034.4,M,005.5,N,010.2,K*48"
-    msg = NMEASentence.parse(raw, dialect="gps")
+    msg = NMEASentence.parse(raw, dialect="nmea")
     assert msg.sentence_id == "VTG"
     assert msg.true_track == 54.7
     assert msg.spd_over_grnd_kmph == 10.2
@@ -45,7 +45,7 @@ def test_parse_vtg():
 
 def test_parse_gsa():
     raw = "$GPGSA,A,3,04,05,,09,12,,,24,,,,,2.5,1.3,2.1*39"
-    msg = NMEASentence.parse(raw, dialect="gps")
+    msg = NMEASentence.parse(raw, dialect="nmea")
     assert msg.sentence_id == "GSA"
     assert msg.mode_selection == "A"
     assert msg.mode_fix_type == 3
@@ -56,7 +56,7 @@ def test_parse_gsa():
 
 def test_parse_gsv():
     raw = "$GPGSV,3,1,11,03,03,111,00,04,15,270,00,06,01,010,00,13,06,292,00*74"
-    msg = NMEASentence.parse(raw, dialect="gps")
+    msg = NMEASentence.parse(raw, dialect="nmea")
     assert msg.sentence_id == "GSV"
     assert msg.total_num_msgs == 3
     assert msg.num_sv_in_view == 11
@@ -66,7 +66,7 @@ def test_parse_gsv():
 
 def test_parse_zda():
     raw = "$GPZDA,201530.00,04,07,2002,00,00*60"
-    msg = NMEASentence.parse(raw, dialect="gps")
+    msg = NMEASentence.parse(raw, dialect="nmea")
     assert msg.sentence_id == "ZDA"
     assert msg.day == 4
     assert msg.month == 7
@@ -76,7 +76,7 @@ def test_parse_zda():
 
 def test_parse_gll():
     raw = "$GPGLL,4916.45,N,12311.12,W,225444,A*31"
-    msg = NMEASentence.parse(raw, dialect="gps")
+    msg = NMEASentence.parse(raw, dialect="nmea")
     assert msg.sentence_id == "GLL"
     assert msg.status == "A"
     assert round(msg.latitude, 4) == 49.2742
@@ -85,7 +85,7 @@ def test_parse_gll():
 
 def test_gsv_roundtrip():
     raw = "$GPGSV,3,1,11,03,03,111,00,04,15,270,00,06,01,010,00,13,06,292,00*74"
-    msg = NMEASentence.parse(raw, dialect="gps")
-    reparsed = NMEASentence.parse(str(msg).strip(), dialect="gps")
+    msg = NMEASentence.parse(raw, dialect="nmea")
+    reparsed = NMEASentence.parse(str(msg).strip(), dialect="nmea")
     assert reparsed.sv_prn_num_1 == msg.sv_prn_num_1
     assert reparsed.num_sv_in_view == msg.num_sv_in_view

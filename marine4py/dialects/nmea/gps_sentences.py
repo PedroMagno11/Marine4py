@@ -1,44 +1,13 @@
 """
-Sentenças padrão de GPS ($GPxxx, $GNxxx, etc).
+Sentenças padrão usada por GPS ($GPxxx, $GNxxx, etc).
 """
 
-from marine4py.core.checksum import XorChecksum
 from marine4py.core.field import Field, FloatField, IntField, StringField
-from marine4py.core.framing import FramingStrategy
-from marine4py.core.nmea import NMEASentence
-from marine4py.core.registry import REGISTRY
-from marine4py.dialects.utils import dm_to_decimal, parse_date, parse_time, render_date, render_time
+from marine4py.dialects.utils import LatLonMixin, parse_date, parse_time, render_date, render_time
+from marine4py.dialects.nmea.nmea_common import DefaultSentence
 
 
-GPS_FRAMING = FramingStrategy(
-    start="$",
-    field_sep=",",
-    checksum_sep="*",
-    checksum_strategy=XorChecksum(),
-    line_end="\r\n",
-    talker_len=2,
-)
-
-REGISTRY.set_framing("gps", GPS_FRAMING)
-
-class LatLonMixin:
-    """Expoe latitude/longitude como float (graus decimais), a partir dos campos crus."""
-
-    @property
-    def latitude(self):
-        return dm_to_decimal(self.lat, self.lat_dir) if getattr(self, "lat", None) else None
-
-    @property
-    def longitude(self):
-        return dm_to_decimal(self.lon, self.lon_dir) if getattr(self, "lon", None) else None
-
-
-class GPSSentence(NMEASentence):
-    dialect = "gps"
-    framing = GPS_FRAMING
-
-
-class GGA(GPSSentence, LatLonMixin):
+class GGA(DefaultSentence, LatLonMixin):
     """Global Positioning System Fix Data."""
     sentence_id = "GGA"
     fields = (
@@ -59,7 +28,7 @@ class GGA(GPSSentence, LatLonMixin):
     )
 
 
-class RMC(GPSSentence, LatLonMixin):
+class RMC(DefaultSentence, LatLonMixin):
     """Recommended Minimum Navigation Information."""
     sentence_id = "RMC"
     fields = (
@@ -77,7 +46,7 @@ class RMC(GPSSentence, LatLonMixin):
     )
 
 
-class VTG(GPSSentence):
+class VTG(DefaultSentence):
     """Track made good and Ground speed."""
     sentence_id = "VTG"
     fields = (
@@ -90,7 +59,7 @@ class VTG(GPSSentence):
         FloatField("Speed (km/h)", "spd_over_grnd_kmph"),
         StringField("Speed Km/h Symbol", "spd_over_grnd_kmph_sym"),
     )
-class GSA(GPSSentence):
+class GSA(DefaultSentence):
     """GPS DOP and active satellites."""
     sentence_id = "GSA"
     fields = (
@@ -114,7 +83,7 @@ class GSA(GPSSentence):
     )
 
 
-class GSV(GPSSentence):
+class GSV(DefaultSentence):
     """
     Satellites in view. Cada sentenca GSV descreve ate 4 satelites; quando
     ha mais satelites visiveis do que isso, o receptor manda varias
@@ -146,7 +115,7 @@ class GSV(GPSSentence):
     )
 
 
-class ZDA(GPSSentence):
+class ZDA(DefaultSentence):
     """Time & Date - UTC, Day, Month, Year and Local Time Zone."""
     sentence_id = "ZDA"
     fields = (
@@ -159,7 +128,7 @@ class ZDA(GPSSentence):
     )
 
 
-class GLL(GPSSentence, LatLonMixin):
+class GLL(DefaultSentence, LatLonMixin):
     """Geographic Position - Latitude/Longitude."""
     sentence_id = "GLL"
     fields = (
@@ -172,7 +141,7 @@ class GLL(GPSSentence, LatLonMixin):
     )
 
 
-class HDT(GPSSentence):
+class HDT(DefaultSentence):
     """Heading - True."""
     sentence_id = "HDT"
     fields = (

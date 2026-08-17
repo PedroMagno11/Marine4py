@@ -10,10 +10,10 @@ def test_required_field_missing_raises_field_error():
     # deve falhar de forma explicita, em vez de silenciosamente virar None.
     raw = "$GPRMC,225446,,4916.45,N,12311.12,W,000.5,054.7,191194,020.3,E*29"
     with pytest.raises(FieldError) as exc_info:
-        NMEASentence .parse(raw, dialect="gps")
+        NMEASentence .parse(raw, dialect="nmea")
     msg = str(exc_info.value)
     assert "obrigatorio" in msg
-    assert "gps.RMC" in msg  # contexto da sentenca no erro
+    assert "nmea.RMC" in msg  # contexto da sentenca no erro
     assert "status" in msg        # contexto do campo no erro
 
 
@@ -21,7 +21,7 @@ def test_choices_violation_raises_field_error():
     # RMC.status so aceita 'A' ou 'V'; forcamos um valor fora do conjunto.
     raw = "$GPRMC,225446,X,4916.45,N,12311.12,W,000.5,054.7,191194,020.3,E*71"
     with pytest.raises(FieldError) as exc_info:
-        NMEASentence.parse(raw, dialect="gps")
+        NMEASentence.parse(raw, dialect="nmea")
     assert "conjunto permitido" in str(exc_info.value)
 
 
@@ -43,7 +43,7 @@ def test_field_error_message_includes_field_name_and_raw_value():
 
 def test_unknown_sentence_lists_known_ones():
     with pytest.raises(Exception) as exc_info:
-        NMEASentence.parse("$GPXXX,1,2,3*53", dialect="gps")
+        NMEASentence.parse("$GPXXX,1,2,3*53", dialect="nmea")
     msg = str(exc_info.value)
     assert "XXX" in msg
     assert "GGA" in msg  # lista de sentencas conhecidas aparece na mensagem

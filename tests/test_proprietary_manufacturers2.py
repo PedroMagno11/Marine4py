@@ -1,6 +1,6 @@
 from marine4py.core.nmea import NMEASentence
 from marine4py.dialects.proprietary.sentences import (
-    ASHR, ASHRATT, ASHRPOS, FEC, FECGPatt, GRMM, GRMW, KWDWPL, MGNWPL,
+    ASHR, ASHRATT, ASHRPOS, FEC, FECGPatt, GRMM, KWDWPL, MGNWPL,
     NORBT0, NORC1, RDID, SRF103, SXN, SXN23, UBX, TNL, VTX, VTX0020,
 )
 

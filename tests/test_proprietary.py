@@ -42,7 +42,7 @@ def test_proprietary_and_standard_dialects_coexist():
     # nenhuma interfere na outra
     gga = NMEASentence.parse(
         "$GPGGA,184353.07,1929.045,S,02410.506,E,1,04,2.6,100.00,M,-33.9,M,,0000*6D",
-        dialect="gps",
+        dialect="nmea",
     )
     grmz = NMEASentence.parse("$PGRMZ,328.0,f,3*0C", dialect="proprietary")
     assert gga.sentence_id == "GGA"

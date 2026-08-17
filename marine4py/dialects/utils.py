@@ -42,3 +42,29 @@ def dm_to_decimal(raw: str, direction: str):
     if direction in ("S", "W"):
         value = -value
     return value
+
+class LatLonMixin:
+    """Expoe latitude/longitude como float (graus decimais), a partir dos campos crus."""
+
+    @property
+    def latitude(self):
+        return dm_to_decimal(self.lat, self.lat_dir) if getattr(self, "lat", None) else None
+
+    @property
+    def longitude(self):
+        return dm_to_decimal(self.lon, self.lon_dir) if getattr(self, "lon", None) else None
+
+class DepthMixin:
+    """ Expõe profundidade em metros """
+    @property
+    def depth(self):
+        meters = getattr(self, "depth_meters", None)
+        if meters is not None:
+            return meters
+        feet = getattr(self, "depth_feet", None)
+        if feet is not None:
+            return feet * 0.3048
+        fathoms = getattr(self, "depth_fathoms", None)
+        if fathoms is not None:
+            return fathoms * 1.8288
+        return None

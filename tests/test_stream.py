@@ -12,14 +12,14 @@ AIS_TYPE18_RAW = "!AIVDM,1,1,,A,B52K>;h00Fc>jpUlNV@ikwpUoP06,0*4C"
 
 
 def test_feed_complete_line_in_one_chunk():
-    stream = NMEASentenceStream(dialects="gps")
+    stream = NMEASentenceStream(dialects="nmea")
     results = stream.feed(GGA_RAW + "\r\n")
     assert len(results) == 1
     assert results[0].sentence_id == "GGA"
 
 
 def test_feed_sentence_split_across_two_chunks():
-    stream = NMEASentenceStream(dialects="gps")
+    stream = NMEASentenceStream(dialects="nmea")
     # quebra a sentenca no meio, simulando um socket entregando em partes
     metade1, metade2 = GGA_RAW[:30], GGA_RAW[30:]
     assert stream.feed(metade1) == []  # ainda incompleta, nada retornado
@@ -29,14 +29,14 @@ def test_feed_sentence_split_across_two_chunks():
 
 
 def test_feed_multiple_lines_in_one_chunk():
-    stream = NMEASentenceStream(dialects="gps")
+    stream = NMEASentenceStream(dialects="nmea")
     chunk = GGA_RAW + "\r\n" + VTG_RAW + "\r\n"
     results = stream.feed(chunk)
     assert [s.sentence_id for s in results] == ["GGA", "VTG"]
 
 
 def test_flush_handles_trailing_line_without_newline():
-    stream = NMEASentenceStream(dialects="gps")
+    stream = NMEASentenceStream(dialects="nmea")
     assert stream.feed(VTG_RAW) == []  # sem \n, fica no buffer
     sentence = stream.flush()
     assert sentence is not None
@@ -44,19 +44,19 @@ def test_flush_handles_trailing_line_without_newline():
 
 
 def test_multi_dialect_stream_routes_each_line_correctly():
-    stream = NMEASentenceStream(dialects=["gps", "proprietary", "ais"])
+    stream = NMEASentenceStream(dialects=["nmea", "proprietary", "ais"])
     log = "\r\n".join([GGA_RAW, GRMZ_RAW, AIS_TYPE18_RAW]) + "\r\n"
     results = stream.feed(log)
     kinds = [(type(s).__module__.split(".")[-2], s.sentence_id) for s in results]
     assert kinds == [
-        ("gps", "GGA"),
+        ("nmea", "GGA"),
         ("proprietary", "GRMZ"),
         ("ais", "VDM"),
     ]
 
 
 def test_on_error_skip_ignores_bad_lines():
-    stream = NMEASentenceStream(dialects="gps", on_error="skip")
+    stream = NMEASentenceStream(dialects="nmea", on_error="skip")
     log = "linha invalida sem cifrao\r\n" + VTG_RAW + "\r\n"
     results = stream.feed(log)
     assert len(results) == 1
@@ -64,7 +64,7 @@ def test_on_error_skip_ignores_bad_lines():
 
 
 def test_on_error_raise_propagates_exception():
-    stream = NMEASentenceStream(dialects="gps")  # default: on_error="raise"
+    stream = NMEASentenceStream(dialects="nmea")  # default: on_error="raise"
     with pytest.raises(ChecksumError):
         stream.feed("$GPXXX,bad*00\r\n")
 
@@ -75,7 +75,7 @@ def test_on_error_callback_receives_line_and_errors():
     def handler(line, errors):
         captured.append((line, len(errors)))
 
-    stream = NMEASentenceStream(dialects="gps", on_error=handler)
+    stream = NMEASentenceStream(dialects="nmea", on_error=handler)
     results = stream.feed("linha ruim\r\n" + VTG_RAW + "\r\n")
     assert len(results) == 1  # a linha ruim foi descartada, nao interrompeu o stream
     assert len(captured) == 1
