@@ -62,3 +62,4 @@ class MTW(DefaultSentence):
         FloatField("Temperature", "temperature", required=True),
         StringField("Unit", "unit", choices=("C",)),
     )
+
